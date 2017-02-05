@@ -14,8 +14,10 @@ var url;
 var server = http.createServer(function(req, res) {
 
 
-//TODO ignore /favicon.ico
-
+  // ignore /favicon.ico
+  if (req.url == "/favicon.ico") {
+  	return;
+  }
   //main page, provide details about previous request
   if(req.url == "/") {
   var temp = {"headers": {"header1":"val1", "head2":"val2"}, "body":"test body"};
