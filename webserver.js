@@ -34,9 +34,9 @@ var server = http.createServer(function (req, res) {
             res.end(html);
             return;
         }
-        //prepare data
+
         //TODO think of separate names from pug file
-        var data = {"headers" : headers, "body" : body, "url": url, "method" : method};
+        var data = {"headers": headers, "body": body, "url": url, "method": method};
 
         res.end(compiledFunction(data));
         return;
@@ -47,15 +47,25 @@ var server = http.createServer(function (req, res) {
     console.log("Requesting: " + req.url + " (" + counter + ")"); //most browser gonna request for /favicon.ico
 
 
-    //api calls, capture this request
-    headers = req.headers;
-    body = req.body;
-    url = req.url;
-    method = req.method;
+    //prepare body
+    var temp = [];
+    req.on('data', function (chunk) {
+        temp.push(chunk);
+    }).on('end', function () {
+        temp = Buffer.concat(temp).toString();
 
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-    res.end("{\"path\" : \"" + req.url + "\"}");
+        // at this point, `body` has the entire request body stored in it as a string
+        body = temp;
+
+        //api calls, capture this request
+        headers = req.headers;
+        url = req.url;
+        method = req.method;
+
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end("{\"path\" : \"" + req.url + "\"}");
+    });
 
 });
 
