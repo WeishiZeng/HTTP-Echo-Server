@@ -1,0 +1,26 @@
+doctype html
+html
+  head
+    style.
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th, td {
+          padding: 5px;
+      }
+      th {
+          text-align: left;
+      }
+  body
+    h2 HTTP Echo Server
+    table(style="width:100%; table-layout:fixed")
+      tr
+        th Header Name
+        th Header Value
+      each val, key in headers
+        tr 
+          td #{key}
+          td(style="overflow-wrap: break-word") #{val}
+    h3 Body
+    p(stype="word-wrap: break-word;") #{body}
