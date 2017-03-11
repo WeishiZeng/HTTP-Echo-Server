@@ -3,6 +3,7 @@ url = require('url');
 var port = 8080;  //http port
 var serverUrl = "0.0.0.0";
 var counter = 0;
+var preflighted = 0;
 
 //pug
 const pug = require('pug');
@@ -45,7 +46,27 @@ var server = http.createServer(function (req, res) {
 
     counter++;
     console.log("Requesting: " + req.url + " (" + counter + ")"); //most browser gonna request for /favicon.ico
+    
+    //preflight
+    if (req.method == "OPTIONS") {
+    	preflighted++;
+    	res.statusCode = 200;
+    	
+    	var allowHeaders = req.headers['access-control-request-headers'];
+    	
+        res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+        res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS'); 
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        
+        if (allowHeaders && allowHeaders.length) {
+        	res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+        }
+        
+        console.log("Preflight Request.");
 
+        res.end();
+        return;
+    }
 
     //prepare body
     var temp = [];
@@ -64,6 +85,14 @@ var server = http.createServer(function (req, res) {
 
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
+        
+        if (preflighted) {
+        	preflighted--;
+        	res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+        	res.setHeader("Access-Control-Allow-Credentials", 'true');
+        	
+        }
+        
         res.end("{\"path\" : \"" + req.url + "\"}");
     });
 
